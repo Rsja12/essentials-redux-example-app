@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 export const UserPage = ({ match }) => {
   const { userId } = match.params
 
-  const user = useSelector(selectUserById(state, userId))
+  const user = useSelector((state) => selectUserById(state, userId))
 
   const postsForUser = useSelector((state) => {
     const allPosts = selectAllPosts(state)

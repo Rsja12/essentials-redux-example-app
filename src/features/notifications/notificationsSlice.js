@@ -3,13 +3,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { client } from '../../api/client'
 
 export const fetchNotifications = createAsyncThunk(
-  'notifications/fetchNotications',
+  'notifications/fetchNotifications',
   async (_, { getState }) => {
     const allNotifications = selectAllNotifications(getState())
     const [latestNotification] = allNotifications
     const latestTimestamp = latestNotification ? latestNotification.date : ''
     const response = await client.get(
-      `/fakeApi/notifactions?since=${latestTimestamp}`
+      `/fakeApi/notifications?since=${latestTimestamp}`
     )
     return response.data
   }
@@ -17,14 +17,28 @@ export const fetchNotifications = createAsyncThunk(
 
 const notificationsSlice = createSlice({
   name: 'notifications',
-  reducers: {},
-  extraReducers: {
-    [fetchNotifications.fulfilled]: (state, action) => {
-      state.push(...action.payload)
-      state.sort((a, b) => b.date.localeCompare(a.date))
+  initialState: [],
+  reducers: {
+    allNotificationsRead(state, action) {
+      state.forEach((notification) => {
+        notification.read = true
+      })
     },
   },
+  extraReducers(builder) {
+    builder.addCase(fetchNotifications.fulfilled, (state, action) => {
+      state.push(...action.payload)
+      state.forEach((notification) => {
+        // Any notifications we've read are no longer new
+        notification.isNew = !notification.read
+      })
+      // Sort with newest first
+      state.sort((a, b) => b.date.localeCompare(a.date))
+    })
+  },
 })
+
+export const { allNotificationsRead } = notificationsSlice.actions
 
 export default notificationsSlice.reducer
 
