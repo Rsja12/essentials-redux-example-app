@@ -10,7 +10,6 @@ export const AddPostForm = () => {
   const [addRequestStatus, setAddRequestStatus] = useState('idle')
 
   const dispatch = useDispatch()
-
   const users = useSelector((state) => state.users)
 
   const onTitleChanged = (e) => setTitle(e.target.value)
